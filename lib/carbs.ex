@@ -7,7 +7,8 @@ defmodule Carbs do
   alias Carbs.{Params, Param, Observation}
   alias Carbs.PythonBridge
   alias CarbsMCP.Repo
-  alias CarbsMCP.{Optimizer, OptimizerParam, Observation as DBObservation, ObservationParam, Suggestion, SuggestionParam}
+  alias CarbsMCP.{Optimizer, OptimizerParam, ObservationParam, Suggestion, SuggestionParam}
+  alias CarbsMCP.Observation, as: DBObservation
   import Ecto.Query
 
   @doc """

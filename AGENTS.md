@@ -8,7 +8,13 @@ The CARBS MCP Server exposes hyperparameter optimization capabilities through th
 
 ## MCP Client Configuration
 
-### Claude Desktop
+The CARBS MCP Server supports multiple transport mechanisms:
+
+### Stdio Transport (Default)
+
+Best for: Command-line tools, Claude Desktop, local development
+
+#### Claude Desktop
 
 Add to your Claude Desktop MCP configuration file (typically `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS or similar location on Windows):
 
@@ -23,7 +29,7 @@ Add to your Claude Desktop MCP configuration file (typically `~/Library/Applicat
 }
 ```
 
-### Other MCP Clients
+#### Other Stdio Clients
 
 The server communicates via stdio using JSON-RPC. Any MCP-compatible client can connect by:
 
@@ -31,6 +37,69 @@ The server communicates via stdio using JSON-RPC. Any MCP-compatible client can 
 2. Communicating via stdin/stdout
 3. Sending JSON-RPC requests
 4. Receiving JSON-RPC responses
+
+### HTTP Transport
+
+Best for: Web services, API integrations, microservices, multiple clients
+
+Configure the server to use HTTP transport by setting the transport type:
+
+```bash
+MCP_TRANSPORT=http _build/prod/rel/carbs_mcp/bin/carbs_mcp start
+```
+
+Or in configuration:
+
+```elixir
+# config/prod.exs or config/dev.exs
+config :carbs_mcp, :mcp_transport, :http
+config :carbs_mcp, :mcp_http_port, 8080
+```
+
+Then connect via HTTP POST requests:
+
+```bash
+# Example request
+curl -X POST http://localhost:8080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}'
+```
+
+### Streaming HTTP (SSE) Transport
+
+Best for: Long-running optimizations, real-time monitoring, progress updates
+
+Configure for streaming HTTP:
+
+```bash
+MCP_TRANSPORT=sse _build/prod/rel/carbs_mcp/bin/carbs_mcp start
+```
+
+Or in configuration:
+
+```elixir
+# config/prod.exs or config/dev.exs
+config :carbs_mcp, :mcp_transport, :sse
+config :carbs_mcp, :mcp_http_port, 8080
+```
+
+Connect via Server-Sent Events:
+
+```javascript
+// Example client
+const eventSource = new EventSource('http://localhost:8080/mcp/stream');
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  // Handle MCP response
+};
+```
+
+### Transport Selection
+
+The transport type is determined by application configuration:
+- Default: `:stdio` (if not configured)
+- Set via `config :carbs_mcp, :mcp_transport, :http` or `:sse`
+- Can be overridden via environment variable: `MCP_TRANSPORT=http mix release`
 
 ## Available Tools
 

@@ -33,6 +33,15 @@ config :carbs_mcp, CarbsMCP.Repo,
 # Override this if CARBS is installed elsewhere
 config :carbs_mcp, :carbs_path, Path.expand("../../../carbs", __DIR__)
 
+# Configure MCP transport
+# Options: :stdio (default), :http, :sse
+# Can be overridden via environment variable MCP_TRANSPORT
+config :carbs_mcp, :mcp_transport, :stdio
+
+# HTTP transport configuration (when using :http or :sse)
+config :carbs_mcp, :mcp_http_port, 8080
+config :carbs_mcp, :mcp_http_host, "0.0.0.0"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

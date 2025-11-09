@@ -12,8 +12,9 @@
   - Production-ready (v0.6.0)
   - 100% MCP compliant
   - Well-tested (500+ tests)
-  - Supports stdio transport
+  - Supports multiple transports (stdio, HTTP, streaming HTTP/SSE)
   - Active development
+  - Transport-agnostic handler API
 - **Cons:**
   - External dependency (GitHub, not Hex)
   - API may change
