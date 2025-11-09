@@ -1,6 +1,6 @@
 import Config
 
-# Configure Pythonx with CARBS dependencies
+# Configure Pythonx with CARBS dependencies via uv project
 config :pythonx, :uv_init,
   pyproject_toml: """
   [project]
@@ -8,6 +8,7 @@ config :pythonx, :uv_init,
   version = "0.1.0"
   requires-python = ">=3.8"
   dependencies = [
+    "carbs",
     "torch>=1.8.1",
     "pyro-ppl>=1.6.0",
     "numpy",
@@ -27,11 +28,6 @@ config :carbs_mcp, ecto_repos: [CarbsMCP.Repo]
 config :carbs_mcp, CarbsMCP.Repo,
   database: Path.expand("../priv/carbs_optimizers.db", __DIR__),
   pool_size: 1
-
-# Configure CARBS Python library path
-# Defaults to ../../../carbs relative to lib/carbs/python_bridge.ex
-# Override this if CARBS is installed elsewhere
-config :carbs_mcp, :carbs_path, Path.expand("../../../carbs", __DIR__)
 
 # Configure MCP transport
 # Options: :stdio (default), :http, :sse

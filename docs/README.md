@@ -23,6 +23,7 @@ Architecture Decision Records document important architectural decisions made du
 - [ADR-009: Data Conversion Strategy](./ADR-009-data-conversion-strategy.md)
 - [ADR-010: Mix Release for Deployment](./ADR-010-mix-release-deployment.md)
 - [ADR-011: ETNF Normalization of Database Schema](./ADR-011-etnf-normalization.md)
+- [ADR-012: Testing CARBS with Distribution Playground](./ADR-012-testing-with-distribution-playground.md)
 
 ## Summary
 

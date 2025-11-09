@@ -6,30 +6,12 @@ defmodule Carbs.PythonBridge do
   require Logger
 
   @doc """
-  Get the CARBS Python library path from config or default.
-  """
-  defp carbs_path do
-    Application.get_env(:carbs_mcp, :carbs_path, 
-      Path.expand("../../../carbs", __DIR__))
-  end
-
-  @doc """
   Initialize Python environment and import CARBS.
+  CARBS is installed via Pythonx's uv project configuration.
   """
   def init do
-    # Add carbs directory to Python path
-    path = carbs_path()
-    carbs_path_escaped = String.replace(path, "\\", "\\\\")
-    
-    # Verify path exists
-    unless File.exists?(path) do
-      Logger.warn("CARBS path does not exist: #{path}. CARBS may not be importable.")
-    end
+    # Import CARBS from the uv-managed Python environment
     python_code = """
-import sys
-import os
-sys.path.insert(0, r"#{carbs_path_escaped}")
-
 from carbs import CARBS
 from carbs.utils import CARBSParams, Param, LogSpace, LinearSpace, LogitSpace
 from carbs.utils import ObservationInParam

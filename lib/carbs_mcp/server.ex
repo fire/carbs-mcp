@@ -360,10 +360,10 @@ defmodule CarbsMCP.Server do
 
   # Helper to convert string keys to atom keys
   defp atomize_keys(map) when is_map(map) do
-    Enum.reduce(map, %{}, fn
-      {k, v} when is_binary(k) ->
-        # Try to convert to existing atom, fallback to string if not found
-        atom_key = 
+    Enum.reduce(map, %{}, fn {k, v}, acc ->
+      new_key = case k do
+        k when is_binary(k) ->
+          # Try to convert to existing atom, fallback to string if not found
           try do
             String.to_existing_atom(k)
           rescue
@@ -371,9 +371,9 @@ defmodule CarbsMCP.Server do
               # If atom doesn't exist, try to create it (safe for known keys)
               String.to_atom(k)
           end
-        {atom_key, atomize_keys(v)}
-      {k, v} ->
-        {k, atomize_keys(v)}
+        k -> k
+      end
+      Map.put(acc, new_key, atomize_keys(v))
     end)
   end
 

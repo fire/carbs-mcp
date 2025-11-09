@@ -20,7 +20,7 @@ defmodule CarbsTest do
       }
     ]
 
-    case Carbs.new(config, params) do
+    case Carbs.new(config, params, "test_optimizer") do
       {:ok, serialized_state} ->
         assert is_binary(serialized_state)
         assert byte_size(serialized_state) > 0
@@ -44,7 +44,7 @@ defmodule CarbsTest do
     ]
 
     # Create optimizer
-    {:ok, serialized_state} = Carbs.new(config, params)
+    {:ok, serialized_state} = Carbs.new(config, params, "test_optimizer_2")
 
     # Get suggestion
     case Carbs.suggest(serialized_state) do

@@ -67,7 +67,6 @@ defmodule CarbsMCP.Repo.Migrations.CreateCarbsOptimizers do
     end
 
     create index(:carbs_observations, [:optimizer_id])
-    create index(:carbs_observations, [:optimizer_id, :observation_number])
     create unique_index(:carbs_observations, [:optimizer_id, :observation_number])
     
     # Observation parameter values - normalized entity type
