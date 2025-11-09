@@ -24,12 +24,18 @@ defmodule CarbsMCP.OptimizerParam do
   def changeset(optimizer_param, attrs) do
     optimizer_param
     |> cast(attrs, [
-      :optimizer_id, :name, :space_type, :space_min, :space_max, 
-      :space_scale, :space_is_integer, :space_rounding_factor,
-      :search_center, :position
+      :optimizer_id,
+      :name,
+      :space_type,
+      :space_min,
+      :space_max,
+      :space_scale,
+      :space_is_integer,
+      :space_rounding_factor,
+      :search_center,
+      :position
     ])
     |> validate_required([:optimizer_id, :name, :space_type, :search_center, :position])
     |> validate_inclusion(:space_type, ["LinearSpace", "LogSpace", "LogitSpace"])
   end
 end
-

@@ -1,10 +1,13 @@
 # Using CARBS MCP Server with AI Agents
 
-This document describes how to use the CARBS MCP Server with AI agents and MCP-compatible clients.
+This document describes how to use the CARBS MCP Server with AI agents and
+MCP-compatible clients.
 
 ## Overview
 
-The CARBS MCP Server exposes hyperparameter optimization capabilities through the Model Context Protocol (MCP), making it accessible to AI agents that support MCP.
+The CARBS MCP Server exposes hyperparameter optimization capabilities through
+the Model Context Protocol (MCP), making it accessible to AI agents that support
+MCP.
 
 ## MCP Client Configuration
 
@@ -16,7 +19,9 @@ Best for: Command-line tools, Claude Desktop, local development
 
 #### Claude Desktop
 
-Add to your Claude Desktop MCP configuration file (typically `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS or similar location on Windows):
+Add to your Claude Desktop MCP configuration file (typically
+`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS or
+similar location on Windows):
 
 ```json
 {
@@ -31,7 +36,8 @@ Add to your Claude Desktop MCP configuration file (typically `~/Library/Applicat
 
 #### Other Stdio Clients
 
-The server communicates via stdio using JSON-RPC. Any MCP-compatible client can connect by:
+The server communicates via stdio using JSON-RPC. Any MCP-compatible client can
+connect by:
 
 1. Starting the server process
 2. Communicating via stdin/stdout
@@ -87,7 +93,7 @@ Connect via Server-Sent Events:
 
 ```javascript
 // Example client
-const eventSource = new EventSource('http://localhost:8080/mcp/stream');
+const eventSource = new EventSource("http://localhost:8080/mcp/stream");
 eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
   // Handle MCP response
@@ -97,6 +103,7 @@ eventSource.onmessage = (event) => {
 ### Transport Selection
 
 The transport type is determined by application configuration:
+
 - Default: `:stdio` (if not configured)
 - Set via `config :carbs_mcp, :mcp_transport, :http` or `:sse`
 - Can be overridden via environment variable: `MCP_TRANSPORT=http mix release`
@@ -108,11 +115,13 @@ The transport type is determined by application configuration:
 Create a new CARBS optimizer instance.
 
 **Arguments:**
+
 - `name` (string, required): Unique identifier for the optimizer
 - `config` (object, optional): CARBS configuration parameters
 - `params` (array, required): List of parameters to optimize
 
 **Example:**
+
 ```json
 {
   "tool": "carbs_create",
@@ -150,9 +159,11 @@ Create a new CARBS optimizer instance.
 Get the next hyperparameter suggestion from CARBS.
 
 **Arguments:**
+
 - `name` (string, required): Name of the optimizer
 
 **Example:**
+
 ```json
 {
   "tool": "carbs_suggest",
@@ -163,6 +174,7 @@ Get the next hyperparameter suggestion from CARBS.
 ```
 
 **Response:**
+
 ```json
 {
   "content": [
@@ -179,6 +191,7 @@ Get the next hyperparameter suggestion from CARBS.
 Report an observation result to CARBS.
 
 **Arguments:**
+
 - `name` (string, required): Name of the optimizer
 - `input` (object, required): The hyperparameters that were tested
 - `output` (number, required): The metric value (what we're optimizing)
@@ -186,6 +199,7 @@ Report an observation result to CARBS.
 - `is_failure` (boolean, optional): Whether the run failed (default: false)
 
 **Example:**
+
 ```json
 {
   "tool": "carbs_observe",
@@ -207,6 +221,7 @@ Report an observation result to CARBS.
 Load an optimizer from the database (verifies it exists).
 
 **Arguments:**
+
 - `name` (string, required): Name of the optimizer
 
 ### carbs_save
@@ -214,6 +229,7 @@ Load an optimizer from the database (verifies it exists).
 Explicitly save an optimizer to the database.
 
 **Arguments:**
+
 - `name` (string, required): Name of the optimizer
 
 ### carbs_list
@@ -223,6 +239,7 @@ List all saved optimizers.
 **Arguments:** None
 
 **Example Response:**
+
 ```json
 {
   "content": [
@@ -238,7 +255,8 @@ List all saved optimizers.
 
 1. **Create Optimizer**: Use `carbs_create` to set up a new optimization run
 2. **Get Suggestions**: Use `carbs_suggest` to get hyperparameters to test
-3. **Run Experiment**: Execute your training/evaluation with the suggested parameters
+3. **Run Experiment**: Execute your training/evaluation with the suggested
+   parameters
 4. **Report Results**: Use `carbs_observe` to report the outcome
 5. **Repeat**: Continue steps 2-4 until satisfied with results
 
@@ -269,9 +287,11 @@ Agent calls: carbs_suggest (again)
 ## Space Types
 
 ### LogSpace
+
 For parameters that vary logarithmically (e.g., learning rates, regularization).
 
 **Properties:**
+
 - `type`: "LogSpace"
 - `scale` (number): Scale factor for the space
 - `min` (number, optional): Minimum value
@@ -280,9 +300,11 @@ For parameters that vary logarithmically (e.g., learning rates, regularization).
 - `rounding_factor` (integer, optional): Round to nearest multiple
 
 ### LinearSpace
+
 For parameters that vary linearly (e.g., batch sizes, layer counts).
 
 **Properties:**
+
 - `type`: "LinearSpace"
 - `scale` (number): Scale factor (should be >3 for integer spaces)
 - `min` (number, optional): Minimum value
@@ -291,9 +313,11 @@ For parameters that vary linearly (e.g., batch sizes, layer counts).
 - `rounding_factor` (integer, optional): Round to nearest multiple
 
 ### LogitSpace
+
 For parameters that should be between 0 and 1 (e.g., dropout rates).
 
 **Properties:**
+
 - `type`: "LogitSpace"
 - `scale` (number): Scale factor
 - `min` (number, optional): Minimum value (default: 0.0)
@@ -307,11 +331,13 @@ When creating an optimizer, you can configure:
 - `is_wandb_logging_enabled`: Enable Weights & Biases logging (default: false)
 - `max_suggestion_cost`: Soft limit on suggestion cost (default: null)
 - `num_random_samples`: Random samples before Bayesian optimization (default: 4)
-- `resample_frequency`: Resample pareto points every N observations (default: 5, set to 0 to disable)
+- `resample_frequency`: Resample pareto points every N observations (default: 5,
+  set to 0 to disable)
 
 ## Error Handling
 
 The server returns MCP-compliant error responses for:
+
 - Missing required arguments
 - Invalid parameter configurations
 - Database errors
@@ -322,25 +348,29 @@ All errors include descriptive messages to help diagnose issues.
 ## Best Practices
 
 1. **Start with low-cost parameters**: CARBS explores higher-cost regions later
-2. **Report failures accurately**: Use `is_failure=true` for parameter-caused failures
-3. **Use appropriate space types**: LogSpace for scale parameters, LinearSpace for counts
+2. **Report failures accurately**: Use `is_failure=true` for parameter-caused
+   failures
+3. **Use appropriate space types**: LogSpace for scale parameters, LinearSpace
+   for counts
 4. **Set reasonable scales**: For integer LinearSpace, use scale >3
 5. **Monitor pareto front**: CARBS optimizes the cost-performance tradeoff
 
 ## Troubleshooting
 
 **"Failed to initialize Python"**
+
 - Ensure Python 3.8+ is installed
 - Check that CARBS path is correct in config
 - Verify Python dependencies are installed
 
 **"Failed to create optimizer"**
+
 - Check parameter definitions are valid
 - Ensure space types are correct
 - Verify search_center values are reasonable
 
 **"Failed to load optimizer"**
+
 - Check optimizer name exists (use `carbs_list`)
 - Verify database is accessible
 - Check database file permissions
-

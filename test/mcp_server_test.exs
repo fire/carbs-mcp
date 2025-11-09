@@ -7,28 +7,30 @@ defmodule CarbsMCPServerTest do
   setup do
     # Ensure database is clean before each test
     Repo.delete_all(Optimizer)
-    
+
     # Initialize Python environment
     case Carbs.PythonBridge.init() do
-      :ok -> :ok
-      error -> 
+      :ok ->
+        :ok
+
+      error ->
         IO.puts("Warning: Python initialization failed: #{inspect(error)}")
         :ok
     end
-    
+
     on_exit(fn ->
       Repo.delete_all(Optimizer)
     end)
-    
+
     {:ok, %{}}
   end
 
   describe "handle_list_tools" do
     test "returns all MCP tools" do
       {:ok, tools, _state} = Server.handle_list_tools(%{}, %{})
-      
+
       tool_names = Enum.map(tools, & &1.name)
-      
+
       assert "carbs_create" in tool_names
       assert "carbs_suggest" in tool_names
       assert "carbs_observe" in tool_names
@@ -39,13 +41,13 @@ defmodule CarbsMCPServerTest do
 
     test "tools have correct schemas" do
       {:ok, tools, _state} = Server.handle_list_tools(%{}, %{})
-      
+
       create_tool = Enum.find(tools, &(&1.name == "carbs_create"))
       assert create_tool.inputSchema.required == ["name", "params"]
-      
+
       suggest_tool = Enum.find(tools, &(&1.name == "carbs_suggest"))
       assert suggest_tool.inputSchema.required == ["name"]
-      
+
       observe_tool = Enum.find(tools, &(&1.name == "carbs_observe"))
       assert observe_tool.inputSchema.required == ["name", "input", "output"]
     end
@@ -73,6 +75,7 @@ defmodule CarbsMCPServerTest do
           first_content = List.first(content)
           assert first_content.type == "text"
           assert first_content.text =~ "Created CARBS optimizer"
+
         {:error, content, _state} ->
           # If Python/CARBS is not available, skip this test
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
@@ -100,6 +103,7 @@ defmodule CarbsMCPServerTest do
         {:ok, content, _state} ->
           assert length(content) == 1
           assert List.first(content).text =~ "Created CARBS optimizer"
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -125,6 +129,7 @@ defmodule CarbsMCPServerTest do
         {:ok, content, _state} ->
           assert length(content) == 1
           assert List.first(content).text =~ "Created CARBS optimizer"
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -163,6 +168,7 @@ defmodule CarbsMCPServerTest do
         {:ok, content, _state} ->
           assert length(content) == 1
           assert List.first(content).text =~ "Created CARBS optimizer"
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -182,7 +188,7 @@ defmodule CarbsMCPServerTest do
 
       {:error, content, _state} = Server.handle_call_tool("carbs_create", args, %{})
       assert length(content) == 1
-          assert List.first(content).text =~ "Missing required arguments"
+      assert List.first(content).text =~ "Missing required arguments"
     end
 
     test "returns error when params is missing" do
@@ -192,7 +198,7 @@ defmodule CarbsMCPServerTest do
 
       {:error, content, _state} = Server.handle_call_tool("carbs_create", args, %{})
       assert length(content) == 1
-          assert List.first(content).text =~ "Missing required arguments"
+      assert List.first(content).text =~ "Missing required arguments"
     end
 
     test "returns error when params is empty" do
@@ -203,7 +209,7 @@ defmodule CarbsMCPServerTest do
 
       {:error, content, _state} = Server.handle_call_tool("carbs_create", args, %{})
       assert length(content) == 1
-          assert List.first(content).text =~ "Missing required arguments"
+      assert List.first(content).text =~ "Missing required arguments"
     end
 
     test "returns error for unknown space type" do
@@ -223,7 +229,7 @@ defmodule CarbsMCPServerTest do
 
       {:error, content, _state} = Server.handle_call_tool("carbs_create", args, %{})
       assert length(content) == 1
-          assert List.first(content).text =~ "Unknown space type"
+      assert List.first(content).text =~ "Unknown space type"
     end
 
     test "returns error when parameter missing required fields" do
@@ -243,7 +249,7 @@ defmodule CarbsMCPServerTest do
 
       {:error, content, _state} = Server.handle_call_tool("carbs_create", args, %{})
       assert length(content) == 1
-          assert List.first(content).text =~ "Parameter missing required fields"
+      assert List.first(content).text =~ "Parameter missing required fields"
     end
   end
 
@@ -268,7 +274,7 @@ defmodule CarbsMCPServerTest do
         {:ok, _, _state} ->
           # Now get a suggestion
           suggest_args = %{"name" => "suggest_test_optimizer"}
-          
+
           case Server.handle_call_tool("carbs_suggest", suggest_args, %{}) do
             {:ok, content, _state} ->
               assert length(content) == 1
@@ -279,10 +285,12 @@ defmodule CarbsMCPServerTest do
               suggestion_text = String.replace(first_content.text, "Suggestion: ", "")
               suggestion = Jason.decode!(suggestion_text)
               assert Map.has_key?(suggestion, "learning_rate")
+
             {:error, content, _state} ->
               IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
               :ok
           end
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -327,12 +335,14 @@ defmodule CarbsMCPServerTest do
         {:ok, _, _state} ->
           # Get a suggestion first
           suggest_args = %{"name" => "observe_test_optimizer"}
-          
+
           case Server.handle_call_tool("carbs_suggest", suggest_args, %{}) do
             {:ok, suggest_content, _state} ->
-              suggestion_text = String.replace(List.first(suggest_content).text, "Suggestion: ", "")
+              suggestion_text =
+                String.replace(List.first(suggest_content).text, "Suggestion: ", "")
+
               suggestion = Jason.decode!(suggestion_text)
-              
+
               # Now observe the result
               observe_args = %{
                 "name" => "observe_test_optimizer",
@@ -341,19 +351,22 @@ defmodule CarbsMCPServerTest do
                 "cost" => 10.0,
                 "is_failure" => false
               }
-              
+
               case Server.handle_call_tool("carbs_observe", observe_args, %{}) do
                 {:ok, content, _state} ->
                   assert length(content) == 1
                   assert List.first(content).text =~ "Observation recorded"
+
                 {:error, content, _state} ->
                   IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
                   :ok
               end
+
             {:error, content, _state} ->
               IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
               :ok
           end
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -385,15 +398,17 @@ defmodule CarbsMCPServerTest do
             "cost" => 5.0,
             "is_failure" => true
           }
-          
+
           case Server.handle_call_tool("carbs_observe", observe_args, %{}) do
             {:ok, content, _state} ->
               assert length(content) == 1
               assert List.first(content).text =~ "Observation recorded"
+
             {:error, content, _state} ->
               IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
               :ok
           end
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -423,15 +438,17 @@ defmodule CarbsMCPServerTest do
             "output" => 0.9
             # cost not provided, should default to 1.0
           }
-          
+
           case Server.handle_call_tool("carbs_observe", observe_args, %{}) do
             {:ok, content, _state} ->
               assert length(content) == 1
               assert List.first(content).text =~ "Observation recorded"
+
             {:error, content, _state} ->
               IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
               :ok
           end
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -446,7 +463,7 @@ defmodule CarbsMCPServerTest do
 
       {:error, content, _state} = Server.handle_call_tool("carbs_observe", args, %{})
       assert length(content) == 1
-          assert List.first(content).text =~ "Missing required arguments"
+      assert List.first(content).text =~ "Missing required arguments"
     end
 
     test "returns error when input is missing" do
@@ -457,7 +474,7 @@ defmodule CarbsMCPServerTest do
 
       {:error, content, _state} = Server.handle_call_tool("carbs_observe", args, %{})
       assert length(content) == 1
-          assert List.first(content).text =~ "Missing required arguments"
+      assert List.first(content).text =~ "Missing required arguments"
     end
 
     test "returns error when output is missing" do
@@ -468,7 +485,7 @@ defmodule CarbsMCPServerTest do
 
       {:error, content, _state} = Server.handle_call_tool("carbs_observe", args, %{})
       assert length(content) == 1
-          assert List.first(content).text =~ "Missing required arguments"
+      assert List.first(content).text =~ "Missing required arguments"
     end
 
     test "returns error for non-existent optimizer" do
@@ -504,10 +521,11 @@ defmodule CarbsMCPServerTest do
       case Server.handle_call_tool("carbs_create", create_args, %{}) do
         {:ok, _, _state} ->
           load_args = %{"name" => "load_test_optimizer"}
-          
+
           {:ok, content, _state} = Server.handle_call_tool("carbs_load", load_args, %{})
           assert length(content) == 1
           assert List.first(content).text =~ "Loaded optimizer"
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -551,10 +569,11 @@ defmodule CarbsMCPServerTest do
       case Server.handle_call_tool("carbs_create", create_args, %{}) do
         {:ok, _, _state} ->
           save_args = %{"name" => "save_test_optimizer"}
-          
+
           {:ok, content, _state} = Server.handle_call_tool("carbs_save", save_args, %{})
           assert length(content) == 1
           assert List.first(content).text =~ "Saved optimizer"
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -613,10 +632,12 @@ defmodule CarbsMCPServerTest do
               assert first_content.text =~ "Saved optimizers"
               assert first_content.text =~ "list_test_1"
               assert first_content.text =~ "list_test_2"
+
             {:error, _, _state} ->
               IO.puts("Skipping test - Python/CARBS not available")
               :ok
           end
+
         {:error, _, _state} ->
           IO.puts("Skipping test - Python/CARBS not available")
           :ok
@@ -665,6 +686,7 @@ defmodule CarbsMCPServerTest do
         {:ok, content, _state} ->
           assert length(content) == 1
           assert List.first(content).text =~ "Created CARBS optimizer"
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -708,41 +730,55 @@ defmodule CarbsMCPServerTest do
           for i <- 1..3 do
             # Get suggestion
             suggest_args = %{"name" => "e2e_test_optimizer"}
-            
+
             case Server.handle_call_tool("carbs_suggest", suggest_args, %{}) do
               {:ok, suggest_content, _state} ->
-                suggestion_text = String.replace(List.first(suggest_content).text, "Suggestion: ", "")
+                suggestion_text =
+                  String.replace(List.first(suggest_content).text, "Suggestion: ", "")
+
                 suggestion = Jason.decode!(suggestion_text)
-                
+
                 # Observe result
                 observe_args = %{
                   "name" => "e2e_test_optimizer",
                   "input" => suggestion,
-                  "output" => 0.9 + (i * 0.01),  # Varying outputs
+                  # Varying outputs
+                  "output" => 0.9 + i * 0.01,
                   "cost" => 10.0 + i,
                   "is_failure" => false
                 }
-                
+
                 case Server.handle_call_tool("carbs_observe", observe_args, %{}) do
                   {:ok, observe_content, _state} ->
                     assert List.first(observe_content).text =~ "Observation recorded"
+
                   {:error, content, _state} ->
-                    IO.puts("Skipping observation #{i} - Python/CARBS not available: #{inspect(content)}")
+                    IO.puts(
+                      "Skipping observation #{i} - Python/CARBS not available: #{inspect(content)}"
+                    )
+
                     :ok
                 end
+
               {:error, content, _state} ->
-                IO.puts("Skipping suggestion #{i} - Python/CARBS not available: #{inspect(content)}")
+                IO.puts(
+                  "Skipping suggestion #{i} - Python/CARBS not available: #{inspect(content)}"
+                )
+
                 :ok
             end
           end
-          
+
           # Verify optimizer still exists
-          {:ok, load_content, _state} = Server.handle_call_tool("carbs_load", %{"name" => "e2e_test_optimizer"}, %{})
+          {:ok, load_content, _state} =
+            Server.handle_call_tool("carbs_load", %{"name" => "e2e_test_optimizer"}, %{})
+
           assert List.first(load_content).text =~ "Loaded optimizer"
-          
+
           # List should include it
           {:ok, list_content, _state} = Server.handle_call_tool("carbs_list", %{}, %{})
           assert List.first(list_content).text =~ "e2e_test_optimizer"
+
         {:error, content, _state} ->
           IO.puts("Skipping test - Python/CARBS not available: #{inspect(content)}")
           :ok
@@ -750,6 +786,3 @@ defmodule CarbsMCPServerTest do
     end
   end
 end
-
-
-

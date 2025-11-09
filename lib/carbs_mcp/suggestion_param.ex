@@ -10,7 +10,7 @@ defmodule CarbsMCP.SuggestionParam do
     belongs_to :suggestion, CarbsMCP.Suggestion
     field :param_name, :string
     field :param_value, :float
-    
+
     timestamps()
   end
 
@@ -22,4 +22,3 @@ defmodule CarbsMCP.SuggestionParam do
     |> unique_constraint([:suggestion_id, :param_name])
   end
 end
-

@@ -6,4 +6,3 @@ defmodule CarbsMCP.Repo do
     otp_app: :carbs_mcp,
     adapter: Ecto.Adapters.SQLite3
 end
-

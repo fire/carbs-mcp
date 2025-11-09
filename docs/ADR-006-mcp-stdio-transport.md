@@ -1,13 +1,13 @@
 # ADR-006: MCP Transport Support
 
-**Status:** Accepted  
-**Date:** 2025-01-09  
-**Last Updated:** 2025-01-09  
+**Status:** Accepted **Date:** 2025-01-09 **Last Updated:** 2025-01-09
 **Context:** Need to choose transport mechanism(s) for MCP server.
 
-**Decision:** Support multiple MCP transports: stdio (default), HTTP, and streaming HTTP (SSE)
+**Decision:** Support multiple MCP transports: stdio (default), HTTP, and
+streaming HTTP (SSE)
 
 **Consequences:**
+
 - **Pros:**
   - Flexibility to use appropriate transport for deployment scenario
   - Stdio: Simple for command-line tools, no network config
@@ -43,14 +43,16 @@
    - Best for: Long-running optimizations, real-time monitoring
 
 **Implementation:**
+
 - Transport type configurable via application environment
 - Default to stdio for backward compatibility
 - ex_mcp library supports all three transport types
 - Handler implementation (CarbsMCP.Server) is transport-agnostic
 
 **Alternatives Considered:**
+
 - Stdio only: Rejected - too limiting for different deployment scenarios
 - HTTP only: Rejected - stdio is standard for MCP tools
-- WebSocket: Considered but SSE is simpler and sufficient for server-to-client streaming
+- WebSocket: Considered but SSE is simpler and sufficient for server-to-client
+  streaming
 - Native BEAM: Only for Elixir-to-Elixir communication
-

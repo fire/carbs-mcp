@@ -14,5 +14,3 @@ File.mkdir_p!(db_dir)
 # Run migrations
 migrations_path = Path.join([:code.priv_dir(:carbs_mcp), "repo", "migrations"])
 Ecto.Migrator.run(Repo, migrations_path, :up, all: true)
-
-

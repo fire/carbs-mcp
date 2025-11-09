@@ -8,7 +8,7 @@ defmodule CarbsMCP.Optimizer do
 
   schema "carbs_optimizers" do
     field :name, :string
-    
+
     # Normalized config fields
     field :better_direction_sign, :integer
     field :seed, :integer
@@ -28,16 +28,16 @@ defmodule CarbsMCP.Optimizer do
     field :is_expected_improvement_pareto_value_clamped, :boolean
     field :is_expected_improvement_value_always_max, :boolean
     field :outstanding_suggestion_estimator, :string
-    
+
     # State tracking
     field :num_observations, :integer
     field :last_suggestion_id, :string
-    
+
     # Relationships
     has_many :params, CarbsMCP.OptimizerParam
     has_many :observations, CarbsMCP.Observation
     has_many :suggestions, CarbsMCP.Suggestion
-    
+
     timestamps()
   end
 
@@ -46,20 +46,28 @@ defmodule CarbsMCP.Optimizer do
     optimizer
     |> cast(attrs, [
       :name,
-      :better_direction_sign, :seed, :num_random_samples,
-      :is_wandb_logging_enabled, :wandb_params, :checkpoint_dir,
-      :s3_checkpoint_path, :is_saved_on_every_observation,
-      :initial_search_radius, :exploration_bias,
-      :num_candidates_for_suggestion_per_dim, :resample_frequency,
-      :max_suggestion_cost, :min_pareto_cost_fraction,
+      :better_direction_sign,
+      :seed,
+      :num_random_samples,
+      :is_wandb_logging_enabled,
+      :wandb_params,
+      :checkpoint_dir,
+      :s3_checkpoint_path,
+      :is_saved_on_every_observation,
+      :initial_search_radius,
+      :exploration_bias,
+      :num_candidates_for_suggestion_per_dim,
+      :resample_frequency,
+      :max_suggestion_cost,
+      :min_pareto_cost_fraction,
       :is_pareto_group_selection_conservative,
       :is_expected_improvement_pareto_value_clamped,
       :is_expected_improvement_value_always_max,
       :outstanding_suggestion_estimator,
-      :num_observations, :last_suggestion_id
+      :num_observations,
+      :last_suggestion_id
     ])
     |> validate_required([:name])
     |> unique_constraint(:name)
   end
 end
-

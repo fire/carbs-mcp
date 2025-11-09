@@ -12,11 +12,11 @@ defmodule Carbs.PythonBridge do
   def init do
     # Import CARBS from the uv-managed Python environment
     python_code = """
-from carbs import CARBS
-from carbs.utils import CARBSParams, Param, LogSpace, LinearSpace, LogitSpace
-from carbs.utils import ObservationInParam
-"""
-    
+    from carbs import CARBS
+    from carbs.utils import CARBSParams, Param, LogSpace, LinearSpace, LogitSpace
+    from carbs.utils import ObservationInParam
+    """
+
     try do
       {_result, _globals} = Pythonx.eval(python_code, %{})
       :ok
@@ -35,69 +35,69 @@ from carbs.utils import ObservationInParam
     # Convert :inf atoms to Python-compatible values
     config_json = config_map |> convert_inf_values() |> Jason.encode!()
     params_json = params_list |> convert_inf_values() |> Jason.encode!()
-    
+
     python_code = """
-import json
-import math
+    import json
+    import math
 
-# Parse JSON config and params
-config_dict = json.loads('''#{config_json}''')
-params_list = json.loads('''#{params_json}''')
+    # Parse JSON config and params
+    config_dict = json.loads('''#{config_json}''')
+    params_list = json.loads('''#{params_json}''')
 
-# Convert 'inf' strings to float('inf')
-def convert_inf(obj):
-    if isinstance(obj, dict):
-        return {k: convert_inf(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_inf(item) for item in obj]
-    elif obj == 'inf':
-        return float('inf')
-    elif obj == '-inf':
-        return float('-inf')
-    else:
-        return obj
+    # Convert 'inf' strings to float('inf')
+    def convert_inf(obj):
+        if isinstance(obj, dict):
+            return {k: convert_inf(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_inf(item) for item in obj]
+        elif obj == 'inf':
+            return float('inf')
+        elif obj == '-inf':
+            return float('-inf')
+        else:
+            return obj
 
-config_dict = convert_inf(config_dict)
-params_list = convert_inf(params_list)
+    config_dict = convert_inf(config_dict)
+    params_list = convert_inf(params_list)
 
-# Convert config to CARBSParams
-carbs_params = CARBSParams(**config_dict)
+    # Convert config to CARBSParams
+    carbs_params = CARBSParams(**config_dict)
 
-# Convert params to Param objects
-param_objects = []
-for p in params_list:
-    space_type = p['space']['type']
-    space_config = p['space'].copy()
-    del space_config['type']
-    
-    if space_type == 'LogSpace':
-        space = LogSpace(**space_config)
-    elif space_type == 'LinearSpace':
-        space = LinearSpace(**space_config)
-    elif space_type == 'LogitSpace':
-        space = LogitSpace(**space_config)
-    else:
-        raise ValueError(f"Unknown space type: {space_type}")
-    
-    param = Param(
-        name=p['name'],
-        space=space,
-        search_center=p['search_center']
-    )
-    param_objects.append(param)
+    # Convert params to Param objects
+    param_objects = []
+    for p in params_list:
+        space_type = p['space']['type']
+        space_config = p['space'].copy()
+        del space_config['type']
 
-# Create CARBS instance
-carbs = CARBS(carbs_params, param_objects)
+        if space_type == 'LogSpace':
+            space = LogSpace(**space_config)
+        elif space_type == 'LinearSpace':
+            space = LinearSpace(**space_config)
+        elif space_type == 'LogitSpace':
+            space = LogitSpace(**space_config)
+        else:
+            raise ValueError(f"Unknown space type: {space_type}")
 
-# Serialize immediately
-serialized = carbs.serialize()
-serialized
-"""
-    
+        param = Param(
+            name=p['name'],
+            space=space,
+            search_center=p['search_center']
+        )
+        param_objects.append(param)
+
+    # Create CARBS instance
+    carbs = CARBS(carbs_params, param_objects)
+
+    # Serialize immediately
+    serialized = carbs.serialize()
+    serialized
+    """
+
     try do
       {_result, globals} = Pythonx.eval(python_code, %{})
       serialized = Pythonx.decode(Map.get(globals, "serialized"))
-      
+
       if serialized do
         {:ok, serialized}
       else
@@ -121,43 +121,46 @@ serialized
     # Base64 strings are safe, but use triple quotes for maximum safety
     # Escape any triple quotes that might exist (unlikely in base64)
     escaped_state = String.replace(serialized_state, "\"\"\"", "\\\"\\\"\\\"")
-    
+
     python_code = """
-import json
-import base64
+    import json
+    import base64
 
-# Deserialize CARBS instance
-serialized = """#{escaped_state}"""
-carbs = CARBS.load_from_string(serialized, is_wandb_logging_enabled=False)
+    # Deserialize CARBS instance
+    serialized = \"""#{escaped_state}\"""
+    carbs = CARBS.load_from_string(serialized, is_wandb_logging_enabled=False)
 
-suggestion_id = #{sid_str}
-is_remembered = #{remembered_str}
+    suggestion_id = #{sid_str}
+    is_remembered = #{remembered_str}
 
-result = carbs.suggest(suggestion_id=suggestion_id, is_suggestion_remembered=is_remembered)
+    result = carbs.suggest(suggestion_id=suggestion_id, is_suggestion_remembered=is_remembered)
 
-# Convert to dict
-result_dict = {
-    'suggestion': result.suggestion,
-    'log': result.log if hasattr(result, 'log') else {}
-}
+    # Convert to dict
+    result_dict = {
+        'suggestion': result.suggestion,
+        'log': result.log if hasattr(result, 'log') else {}
+    }
 
-# Also serialize the updated state
-updated_serialized = carbs.serialize()
+    # Also serialize the updated state
+    updated_serialized = carbs.serialize()
 
-result_data = {
-    'result': result_dict,
-    'serialized': updated_serialized
-}
-result_data
-"""
-    
+    result_data = {
+        'result': result_dict,
+        'serialized': updated_serialized
+    }
+    result_data
+    """
+
     try do
       {_result, globals} = Pythonx.eval(python_code, %{})
       result_data = Pythonx.decode(Map.get(globals, "result_data"))
-      
+
       if result_data do
         result_dict = Map.get(result_data, "result") || Map.get(result_data, :result)
-        updated_serialized = Map.get(result_data, "serialized") || Map.get(result_data, :serialized)
+
+        updated_serialized =
+          Map.get(result_data, "serialized") || Map.get(result_data, :serialized)
+
         {:ok, decode_from_python(result_dict), updated_serialized}
       else
         {:error, :suggest_failed}
@@ -178,50 +181,53 @@ result_data
     # Base64 strings are safe, but use triple quotes for maximum safety
     # Escape any triple quotes that might exist (unlikely in base64)
     escaped_state = String.replace(serialized_state, "\"\"\"", "\\\"\\\"\\\"")
-    
+
     python_code = """
-import json
+    import json
 
-# Deserialize CARBS instance
-serialized = """#{escaped_state}"""
-carbs = CARBS.load_from_string(serialized, is_wandb_logging_enabled=False)
+    # Deserialize CARBS instance
+    serialized = \"""#{escaped_state}\"""
+    carbs = CARBS.load_from_string(serialized, is_wandb_logging_enabled=False)
 
-obs_input = json.loads('''#{obs_json}''')
-obs_output = #{observation.output}
-obs_cost = #{observation.cost}
-obs_is_failure = #{observation.is_failure}
+    obs_input = json.loads('''#{obs_json}''')
+    obs_output = #{observation.output}
+    obs_cost = #{observation.cost}
+    obs_is_failure = #{observation.is_failure}
 
-obs = ObservationInParam(
-    input=obs_input,
-    output=obs_output,
-    cost=obs_cost,
-    is_failure=obs_is_failure
-)
+    obs = ObservationInParam(
+        input=obs_input,
+        output=obs_output,
+        cost=obs_cost,
+        is_failure=obs_is_failure
+    )
 
-result = carbs.observe(obs)
+    result = carbs.observe(obs)
 
-# Convert to dict
-result_dict = {
-    'logs': result.logs if hasattr(result, 'logs') else {}
-}
+    # Convert to dict
+    result_dict = {
+        'logs': result.logs if hasattr(result, 'logs') else {}
+    }
 
-# Also serialize the updated state
-updated_serialized = carbs.serialize()
+    # Also serialize the updated state
+    updated_serialized = carbs.serialize()
 
-result_data = {
-    'result': result_dict,
-    'serialized': updated_serialized
-}
-result_data
-"""
-    
+    result_data = {
+        'result': result_dict,
+        'serialized': updated_serialized
+    }
+    result_data
+    """
+
     try do
       {_result, globals} = Pythonx.eval(python_code, %{})
       result_data = Pythonx.decode(Map.get(globals, "result_data"))
-      
+
       if result_data do
         result_dict = Map.get(result_data, "result") || Map.get(result_data, :result)
-        updated_serialized = Map.get(result_data, "serialized") || Map.get(result_data, :serialized)
+
+        updated_serialized =
+          Map.get(result_data, "serialized") || Map.get(result_data, :serialized)
+
         {:ok, decode_from_python(result_dict), updated_serialized}
       else
         {:error, :observe_failed}
@@ -233,22 +239,23 @@ result_data
     end
   end
 
-
   # Helper functions for encoding/decoding
 
   defp encode_to_python(term) when is_map(term) do
-    entries = 
+    entries =
       term
       |> Enum.map(fn {k, v} -> "'#{k}': #{encode_to_python(v)}" end)
       |> Enum.join(", ")
+
     "{#{entries}}"
   end
 
   defp encode_to_python(term) when is_list(term) do
-    entries = 
+    entries =
       term
       |> Enum.map(&encode_to_python/1)
       |> Enum.join(", ")
+
     "[#{entries}]"
   end
 
@@ -340,4 +347,3 @@ result_data
 
   defp convert_inf_values(value), do: value
 end
-

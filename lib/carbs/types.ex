@@ -24,25 +24,25 @@ defmodule Carbs.Params do
   ]
 
   @type t :: %__MODULE__{
-    better_direction_sign: integer(),
-    seed: integer(),
-    num_random_samples: integer(),
-    is_wandb_logging_enabled: boolean(),
-    wandb_params: map(),
-    checkpoint_dir: String.t(),
-    s3_checkpoint_path: String.t(),
-    is_saved_on_every_observation: boolean(),
-    initial_search_radius: float(),
-    exploration_bias: float(),
-    num_candidates_for_suggestion_per_dim: integer(),
-    resample_frequency: integer(),
-    max_suggestion_cost: float() | nil,
-    min_pareto_cost_fraction: float(),
-    is_pareto_group_selection_conservative: boolean(),
-    is_expected_improvement_pareto_value_clamped: boolean(),
-    is_expected_improvement_value_always_max: boolean(),
-    outstanding_suggestion_estimator: String.t()
-  }
+          better_direction_sign: integer(),
+          seed: integer(),
+          num_random_samples: integer(),
+          is_wandb_logging_enabled: boolean(),
+          wandb_params: map(),
+          checkpoint_dir: String.t(),
+          s3_checkpoint_path: String.t(),
+          is_saved_on_every_observation: boolean(),
+          initial_search_radius: float(),
+          exploration_bias: float(),
+          num_candidates_for_suggestion_per_dim: integer(),
+          resample_frequency: integer(),
+          max_suggestion_cost: float() | nil,
+          min_pareto_cost_fraction: float(),
+          is_pareto_group_selection_conservative: boolean(),
+          is_expected_improvement_pareto_value_clamped: boolean(),
+          is_expected_improvement_value_always_max: boolean(),
+          outstanding_suggestion_estimator: String.t()
+        }
 
   def default do
     %__MODULE__{
@@ -75,10 +75,10 @@ defmodule Carbs.Param do
   defstruct [:name, :space, :search_center]
 
   @type t :: %__MODULE__{
-    name: String.t(),
-    space: Carbs.Space.t(),
-    search_center: number()
-  }
+          name: String.t(),
+          space: Carbs.Space.t(),
+          search_center: number()
+        }
 end
 
 defmodule Carbs.Space do
@@ -89,34 +89,34 @@ defmodule Carbs.Space do
     defstruct [:min, :max, :scale, :is_integer, :rounding_factor]
 
     @type t :: %__MODULE__{
-      min: float(),
-      max: float(),
-      scale: float(),
-      is_integer: boolean(),
-      rounding_factor: integer()
-    }
+            min: float(),
+            max: float(),
+            scale: float(),
+            is_integer: boolean(),
+            rounding_factor: integer()
+          }
   end
 
   defmodule LogSpace do
     defstruct [:min, :max, :scale, :is_integer, :rounding_factor]
 
     @type t :: %__MODULE__{
-      min: float(),
-      max: float(),
-      scale: float(),
-      is_integer: boolean(),
-      rounding_factor: integer()
-    }
+            min: float(),
+            max: float(),
+            scale: float(),
+            is_integer: boolean(),
+            rounding_factor: integer()
+          }
   end
 
   defmodule LogitSpace do
     defstruct [:min, :max, :scale]
 
     @type t :: %__MODULE__{
-      min: float(),
-      max: float(),
-      scale: float()
-    }
+            min: float(),
+            max: float(),
+            scale: float()
+          }
   end
 
   @type t :: LinearSpace.t() | LogSpace.t() | LogitSpace.t()
@@ -129,11 +129,11 @@ defmodule Carbs.Observation do
   defstruct [:input, :output, :cost, :is_failure]
 
   @type t :: %__MODULE__{
-    input: map(),
-    output: float(),
-    cost: float(),
-    is_failure: boolean()
-  }
+          input: map(),
+          output: float(),
+          cost: float(),
+          is_failure: boolean()
+        }
 
   def new(input, output, cost \\ 1.0, is_failure \\ false) do
     %__MODULE__{
@@ -144,4 +144,3 @@ defmodule Carbs.Observation do
     }
   end
 end
-

@@ -13,18 +13,24 @@ defmodule CarbsMCP.Observation do
     field :cost, :float
     field :is_failure, :boolean
     field :suggestion_id, :string
-    
+
     has_many :param_values, CarbsMCP.ObservationParam
-    
+
     timestamps()
   end
 
   @doc false
   def changeset(observation, attrs) do
     observation
-    |> cast(attrs, [:optimizer_id, :observation_number, :output, :cost, :is_failure, :suggestion_id])
+    |> cast(attrs, [
+      :optimizer_id,
+      :observation_number,
+      :output,
+      :cost,
+      :is_failure,
+      :suggestion_id
+    ])
     |> validate_required([:optimizer_id, :observation_number, :output])
     |> unique_constraint([:optimizer_id, :observation_number])
   end
 end
-

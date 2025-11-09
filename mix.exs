@@ -42,4 +42,3 @@ defmodule CarbsMCP.MixProject do
     ]
   end
 end
-

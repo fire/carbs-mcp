@@ -11,9 +11,9 @@ defmodule CarbsMCP.Suggestion do
     field :suggestion_id, :string
     field :is_remembered, :boolean
     field :is_observed, :boolean
-    
+
     has_many :param_values, CarbsMCP.SuggestionParam
-    
+
     timestamps()
   end
 
@@ -25,4 +25,3 @@ defmodule CarbsMCP.Suggestion do
     |> unique_constraint([:optimizer_id, :suggestion_id])
   end
 end
-

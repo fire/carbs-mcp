@@ -10,7 +10,7 @@ defmodule CarbsMCP.ObservationParam do
     belongs_to :observation, CarbsMCP.Observation
     field :param_name, :string
     field :param_value, :float
-    
+
     timestamps()
   end
 
@@ -22,4 +22,3 @@ defmodule CarbsMCP.ObservationParam do
     |> unique_constraint([:observation_id, :param_name])
   end
 end
-

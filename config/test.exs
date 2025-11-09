@@ -7,4 +7,3 @@ config :carbs_mcp, :start_application, false
 config :carbs_mcp, CarbsMCP.Repo,
   database: Path.expand("../priv/test_carbs_optimizers.db", __DIR__),
   pool_size: 10
-

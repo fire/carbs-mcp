@@ -24,6 +24,7 @@ defmodule CarbsTest do
       {:ok, serialized_state} ->
         assert is_binary(serialized_state)
         assert byte_size(serialized_state) > 0
+
       error ->
         flunk("Failed to create CARBS optimizer: #{inspect(error)}")
     end
@@ -53,22 +54,24 @@ defmodule CarbsTest do
         assert Map.has_key?(suggestion, "learning_rate")
 
         # Observe result
-        observation = Observation.new(
-          suggestion,
-          0.95,
-          10.0,
-          false
-        )
+        observation =
+          Observation.new(
+            suggestion,
+            0.95,
+            10.0,
+            false
+          )
 
         case Carbs.observe(updated_state, observation) do
           {:ok, _obs_result, _final_state} ->
             assert true
+
           error ->
             flunk("Failed to observe: #{inspect(error)}")
         end
+
       error ->
         flunk("Failed to suggest: #{inspect(error)}")
     end
   end
 end
-

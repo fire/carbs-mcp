@@ -1,15 +1,19 @@
 # CARBS MCP Server
 
-A Model Context Protocol (MCP) stdio server that exposes CARBS (Cost Aware pareto-Region Bayesian Search) hyperparameter optimization capabilities.
+A Model Context Protocol (MCP) stdio server that exposes CARBS (Cost Aware
+pareto-Region Bayesian Search) hyperparameter optimization capabilities.
 
 ## Overview
 
-This project integrates the Python CARBS library with Elixir using Pythonx, providing a standalone MCP server that can be used by MCP-compatible clients for hyperparameter optimization.
+This project integrates the Python CARBS library with Elixir using Pythonx,
+providing a standalone MCP server that can be used by MCP-compatible clients for
+hyperparameter optimization.
 
 ## Features
 
 - **MCP Protocol**: Full MCP server implementation using ex_mcp
-- **Multiple Transports**: Supports stdio (default), HTTP, and streaming HTTP (SSE)
+- **Multiple Transports**: Supports stdio (default), HTTP, and streaming HTTP
+  (SSE)
 - **Python Integration**: Uses Pythonx to embed Python and call CARBS library
 - **State Persistence**: SQLite3 database via Ecto with ETNF-normalized schema
 - **Mix Release**: Packaged as a standalone release for deployment
@@ -44,6 +48,7 @@ _build/prod/rel/carbs_mcp/bin/carbs_mcp start
 ```
 
 Or for foreground mode:
+
 ```bash
 _build/prod/rel/carbs_mcp/bin/carbs_mcp start_iex
 ```
@@ -79,11 +84,14 @@ The server exposes the following tools:
 
 ## Configuration
 
-Python dependencies are configured in `config/config.exs` via Pythonx's `pyproject_toml` configuration.
+Python dependencies are configured in `config/config.exs` via Pythonx's
+`pyproject_toml` configuration.
 
-Database configuration is in `config/config.exs` - by default uses SQLite3 at `priv/carbs_optimizers.db`.
+Database configuration is in `config/config.exs` - by default uses SQLite3 at
+`priv/carbs_optimizers.db`.
 
 MCP transport can be configured:
+
 - Default: `:stdio` transport
 - HTTP: Set `config :carbs_mcp, :mcp_transport, :http` and configure port/host
 - SSE: Set `config :carbs_mcp, :mcp_transport, :sse` and configure port/host
@@ -92,11 +100,16 @@ MCP transport can be configured:
 ## Development
 
 Run tests:
+
 ```bash
 mix test
 ```
 
+### Pre-commit Hooks
+
+This project uses pre-commit hooks to automatically format code. See
+[.pre-commit-hooks.md](.pre-commit-hooks.md) for setup instructions.
+
 ## License
 
 See LICENSE file.
-

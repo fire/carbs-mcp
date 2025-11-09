@@ -1,10 +1,13 @@
 # Architecture Decision Records
 
-This directory contains Architecture Decision Records (ADRs) for the CARBS MCP Server project.
+This directory contains Architecture Decision Records (ADRs) for the CARBS MCP
+Server project.
 
 ## What are ADRs?
 
-Architecture Decision Records document important architectural decisions made during the development of the project. Each ADR describes:
+Architecture Decision Records document important architectural decisions made
+during the development of the project. Each ADR describes:
+
 - The context and problem
 - The decision made
 - The consequences (pros and cons)
@@ -28,11 +31,12 @@ Architecture Decision Records document important architectural decisions made du
 ## Summary
 
 The key decisions prioritize:
+
 1. **Speed of implementation** - Calling Python vs porting
 2. **Simplicity** - SQLite3, database-only state, multiple transport options
 3. **Reliability** - Error handling, state persistence
 4. **Standards compliance** - MCP protocol, JSON data format, ETNF normalization
 5. **Flexibility** - Support for stdio, HTTP, and streaming HTTP transports
 
-These decisions result in a working implementation that can be deployed quickly while maintaining good performance and reliability characteristics.
-
+These decisions result in a working implementation that can be deployed quickly
+while maintaining good performance and reliability characteristics.
